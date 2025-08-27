@@ -24,5 +24,5 @@ variable is_peering_required {
 
 variable "is_NAT_required" {
    type        = string
-   default     = true
+   default     = false
 }
