@@ -26,7 +26,7 @@ module "ingress_alb" {
   project        = var.project
   environment    = var.environment
   sg_name        = "ingress_alb"
-  sg_description = "created sg for frontend load balancer"
+  sg_description = "created sg for ingress load balancer"
   vpc_id         = local.vpc_id
 }
 
@@ -129,6 +129,6 @@ resource "aws_security_group_rule" "eks_node_to_vpc" {
   from_port = 0
   to_port   = 0
   protocol  = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["10.0.0.0/16"]
   security_group_id = module.eks_node.sg_id
-
+}
