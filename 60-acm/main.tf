@@ -37,4 +37,16 @@ resource "aws_route53_record" "gonela" {
 resource "aws_acm_certificate_validation" "gonela" {
   certificate_arn         = aws_acm_certificate.gonela.arn
   validation_record_fqdns = [for record in aws_route53_record.gonela : record.fqdn]
+  depends_on = [aws_route53_record.gonela]
+}
+
+# Create a Route 53 Hosted Zone
+resource "aws_route53_zone" "my_zone" {
+  name = "gonela.site" # Replace with your domain name
+}
+
+
+#outputs of hosted zone name servers
+output "name_servers" {
+  value = data.aws_route53_zone.selected.name_servers
 }
