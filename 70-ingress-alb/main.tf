@@ -1,25 +1,25 @@
 # open-source terraform-aws-alb-module is using
-module "frontend_alb" {
+module "ingress_alb" {
     source                  = "terraform-aws-modules/alb/aws"
     version                 = "9.16.0"
     internal                = false 
-    name                    = "${local.Name}-frontend-alb"
+    name                    = "${local.Name}-ingress-alb"
     vpc_id                  = local.vpc_id
     subnets                 = local.public_subnet_ids
     create_security_group   = false
-    security_groups         = [local.frontend_alb_sg_id]
+    security_groups         = [local.ingress_alb_sg_id]
     enable_deletion_protection = false
     
     tags = merge(
         local.common_tags,
         {
-            Name = "${local.Name}-frontend_alb"
+            Name = "${local.Name}-ingress_alb"
         }
     )
 }
 
-resource "aws_lb_listener" "frontend_alb" {
-  load_balancer_arn = module.frontend_alb.arn
+resource "aws_lb_listener" "ingress_alb" {
+  load_balancer_arn = module.ingress_alb.arn
   port              = "443"
   protocol          = "HTTPS"
   certificate_arn   = local.acm_certificate_arn
@@ -38,14 +38,48 @@ resource "aws_lb_listener" "frontend_alb" {
 
 
 
-resource "aws_route53_record" "frontend_alb" {
+resource "aws_route53_record" "ingress_alb" {
   zone_id = data.aws_route53_zone.selected.zone_id
   name    = "*.${data.aws_route53_zone.selected.name}"   #*.gonela.site
   type    = "A"
 
   alias {
-    name                   = module.frontend_alb.dns_name
-    zone_id                = module.frontend_alb.zone_id # This is the ZONE ID of ALB
+    name                   = module.ingress_alb.dns_name
+    zone_id                = module.ingress_alb.zone_id # This is the ZONE ID of ALB
     evaluate_target_health = true
+  }
+}
+
+resource "aws_lb_target_group" "frontend" {
+  name     = "${var.project}-${var.environment}-frontend" #roboshop-dev-catalogue
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = local.vpc_id
+  deregistration_delay = 120
+  target_type = "ip"
+  health_check {
+    healthy_threshold = 2
+    interval = 5
+    matcher = "200-299"
+    path = "/"
+    port = 8080
+    timeout = 2
+    unhealthy_threshold = 3
+  }
+}
+
+resource "aws_lb_listener_rule" "frontend" {
+  listener_arn = aws_lb_listener.ingress_alb.arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend.arn
+  }
+
+  condition {
+    host_header {
+      values = ["${var.environment}.${data.aws_route53_zone.selected.name}"] # https://dev.daws84s.site
+    }
   }
 }
