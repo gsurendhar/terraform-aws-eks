@@ -4,7 +4,6 @@ locals {
   public_subnet_ids  = split("," , data.aws_ssm_parameter.public_subnet_ids.value)
   eks_control_plane_sg_id  = data.aws_ssm_parameter.eks_control_plane_sg_id.value
   eks_node_sg_id  = data.aws_ssm_parameter.eks_node_sg_id.value
-  acm_certificate_arn = data.aws_ssm_parameter.acm_certificate_arn.value
 
   common_tags = {
       Project      = var.project
@@ -14,6 +13,4 @@ locals {
 
   Name = "${var.project}-${var.environment}"
 
-  zone_name = data.aws_route53_zone.selected.name
-  zone_id = data.aws_route53_zone.selected.zone_id
 }
