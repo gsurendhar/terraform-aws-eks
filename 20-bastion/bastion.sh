@@ -39,7 +39,7 @@ git clone https://github.com/ahmetb/kubectx /opt/kubectx
 ln -s /opt/kubectx/kubens /usr/local/bin/kubens
 
 # K9S Installation
-curl -sS https://webinstall.dev/k9s | bash
+su - ec2-user -c "curl -sS https://webinstall.dev/k9s | bash"
 
 # HELM Installation
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
