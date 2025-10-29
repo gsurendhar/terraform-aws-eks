@@ -13,6 +13,11 @@
 ## EKS Setup
 * Create Namespaces
 * Create Cluster
+a) get-caller-identity
+
+This tells you who your current AWS credentials are:
+
+```aws sts get-caller-identity```
 ```
 aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
 ```

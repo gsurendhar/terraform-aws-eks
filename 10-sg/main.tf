@@ -20,7 +20,7 @@ module "vpn" {
   vpc_id         = local.vpc_id
 }
 
-#  creating SG for frontend-alb to connection from bastion and vpn
+#  creating SG for ingress-alb to connection from bastion and vpn
 module "ingress_alb" {
   source         = "git::https://github.com/gsurendhar/terraform-aws-security-group-module.git?ref=master"
   project        = var.project
